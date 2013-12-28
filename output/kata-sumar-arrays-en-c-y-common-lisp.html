@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:og="http://ogp.me/ns#"
+      xmlns:fb="https://www.facebook.com/2008/fbml">
+<head>
+    <title>Kata: Sumar Arrays (en C y Common Lisp)</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Open Graph tags -->
+
+            <meta property="og:type" content="article"/>
+            <meta property="og:title" content="Kata: Sumar Arrays (en C y Common Lisp)"/>
+            <meta property="og:url" content="./kata-sumar-arrays-en-c-y-common-lisp.html"/>
+            <meta property="og:description" content="Desde kaleidos.netse nos planteaba una kata muy interesante que transcribo a continuación: Kata: Sumar arrays Empecemos con algo sencillo, para desentumecer los músculos. Muchas veces, cuando programamos con una fecha límite, y tenemos que resolver los problemas con prisa, no nos preocupamos por el rendimiento. Como mucho, pensamos ..."/>
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="./theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="./theme/css/font-awesome.min.css" rel="stylesheet">
+    <link href="./theme/css/pygments.css" rel="stylesheet">
+        <link href="./theme/css/html4css1.css" rel="stylesheet">
+    <link rel="stylesheet" href="./theme/css/style.css" type="text/css"/>
+    <!-- JavaScript plugins (requires jQuery) -->
+    <script src="http://code.jquery.com/jquery.js"></script>
+
+
+</head>
+<body>
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="." class="navbar-brand">Mi Pensadero</a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="./archives.html"><i class="icon-th-list"></i>Archives</a></li>
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</nav>
+<!-- /.navbar -->
+<div class="container">
+    <div class="row">
+        <div class="col-lg-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="./kata-sumar-arrays-en-c-y-common-lisp.html"
+                       rel="bookmark"
+                       title="Permalink to Kata: Sumar Arrays (en C y Common Lisp)">
+                        Kata: Sumar Arrays (en C y Common Lisp)
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="icon-calendar"></i>Tue 01 November 2011
+    </span>
+
+    <span class="label label-default">Category</span>
+    <a href="./category/snippets.html">snippets</a>
+
+
+<span class="label label-default">Tags</span>
+	<a href="./tag/array.html">array</a>
+        /
+	<a href="./tag/c.html">c</a>
+        /
+	<a href="./tag/kata.html">kata</a>
+        /
+	<a href="./tag/lisp.html">lisp</a>
+        /
+	<a href="./tag/optimizacion.html">optimización</a>
+        /
+	<a href="./tag/snippets.html">snippets</a>
+        /
+	<a href="./tag/suma.html">suma</a>
+        /
+	<a href="./tag/vectores.html">vectores</a>
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <p>Desde <a class="reference external" href="http://kaleidos.net">kaleidos.net</a>se nos planteaba una <a class="reference external" href="http://albaontech.wordpress.com/2011/10/27/kata-sumar-arrays/#comments">kata</a> muy interesante que
+transcribo a continuación:</p>
+<blockquote>
+<p><strong>Kata: Sumar&nbsp;arrays</strong></p>
+<p>Empecemos con algo sencillo, para desentumecer los músculos.</p>
+<p>Muchas veces, cuando programamos con una fecha límite, y tenemos que
+resolver los problemas con prisa, no nos preocupamos por el
+rendimiento. Como mucho, pensamos en refactorizar más adelante si
+hace falta. Sería muy bueno tener integradas ciertas rutinas de
+programación que nos permitan programar de forma más eficiente sin
+pensarlo.</p>
+<p>A si que la kata que propongo es la siguiente:</p>
+<p>Tenemos diez arrays largos, de 500 enteros cada uno. &nbsp;Queremos
+obtener el número que obtenemos al sumar cada uno de esos
+10*500=5000 enteros. Sencillo, ¿verdad?</p>
+<p>Elige tu lenguaje de programación preferido. Y piensa dos formas
+distintas de obtener la suma. Por ejemplo, puedes sumar cada uno de
+los arrays por separado, y luego sumar los resultados. O puedes
+hacer sumas parciales de cada una de las posiciones de los arrays. O
+fundir los arrays en uno, y luego sumar todos los números. O
+cualquier otra forma que se te ocurra (¿una funcion recursiva
+tendría sentido?). Implementalas.</p>
+<p>Ahora, mediante un bucle, &nbsp;mide el tiempo que tarda en ejecutarse
+1000 veces cada una de ellas.</p>
+<p>¿Cuales son los resultados? ¿La forma que pensabas que sería más
+rápida, lo era de verdad?</p>
+<p>Bonus I: A la vista de los resultados, ¿se te ocurre una tercera
+forma capaz de conseguir un mejor rendimiento?</p>
+<p>Bonus II: Repite el ejercicio en un lenguaje en el que nunca hayas
+programado</p>
+<p>Y recuerda, &nbsp;no se trata de un concurso. Se trata de una kata.
+Practica y mejora. Siempre</p>
+</blockquote>
+<p>En la noticia extendida encontrarás mis soluciones en <strong>C</strong> y <strong>Common
+Lisp</strong>.</p>
+<p>En primer lugar ofrezco la solución en Common Lisp (OJO, probablemente
+tú encuentres una solución mejor)</p>
+<div class="highlight"><pre><span class="cm">#|</span>
+<span class="cm"> | kata.lisp</span>
+<span class="cm"> |</span>
+<span class="cm"> | Author: David Barragan Merino (@bameda)</span>
+<span class="cm"> | Date: 2011-10-29</span>
+<span class="cm"> |</span>
+<span class="cm"> | Interpreter</span>
+<span class="cm"> | clisp kata.lisp</span>
+<span class="cm"> | Compile:</span>
+<span class="cm"> | clisp -c -l -q kata.lisp -o kata</span>
+<span class="cm"> | Execute:</span>
+<span class="cm"> | clisp kata.fas</span>
+<span class="cm"> |#</span>
+<span class="p">(</span><span class="nb">defun</span> <span class="nv">random_list</span> <span class="p">(</span><span class="nv">L</span> <span class="nv">n</span><span class="p">)</span>
+    <span class="p">(</span><span class="k">if</span> <span class="p">(</span><span class="nb">&gt;</span> <span class="nv">n</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="p">(</span><span class="nv">random_list</span> <span class="p">(</span><span class="nb">cons</span> <span class="p">(</span><span class="nb">random</span> <span class="mi">1000000</span><span class="p">)</span> <span class="nv">L</span><span class="p">)</span> <span class="p">(</span><span class="nb">1-</span> <span class="nv">n</span><span class="p">))</span>
+        <span class="p">(</span><span class="nb">cons</span> <span class="p">(</span><span class="nb">random</span> <span class="mi">1000000</span><span class="p">)</span> <span class="nv">L</span><span class="p">)))</span>
+
+<span class="p">(</span><span class="nb">defun</span> <span class="nv">random_lists</span> <span class="p">(</span><span class="nv">L</span> <span class="nv">n</span><span class="p">)</span>
+    <span class="p">(</span><span class="k">if</span> <span class="p">(</span><span class="nb">&gt;</span> <span class="nv">n</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="p">(</span><span class="nv">random_lists</span> <span class="p">(</span><span class="nb">cons</span> <span class="p">(</span><span class="nv">random_list</span> <span class="no">nil</span> <span class="mi">500</span><span class="p">)</span> <span class="nv">L</span><span class="p">)</span> <span class="p">(</span><span class="nb">1-</span> <span class="nv">n</span><span class="p">))</span>
+        <span class="p">(</span><span class="nb">cons</span> <span class="p">(</span><span class="nv">random_list</span> <span class="no">nil</span> <span class="mi">500</span><span class="p">)</span> <span class="nv">L</span><span class="p">)))</span>
+
+<span class="p">(</span><span class="nb">defun</span> <span class="nv">sup_sum</span> <span class="p">(</span><span class="nv">L</span><span class="p">)</span>
+    <span class="p">(</span><span class="nb">reduce</span> <span class="nf">#&#39;</span><span class="nb">+</span> <span class="p">(</span><span class="nb">mapcar</span> <span class="nf">#&#39;</span><span class="p">(</span><span class="k">lambda</span> <span class="p">(</span><span class="nv">x</span><span class="p">)</span> <span class="p">(</span><span class="nb">apply</span> <span class="nf">#&#39;</span><span class="nb">+</span> <span class="nv">x</span><span class="p">))</span> <span class="nv">L</span><span class="p">)))</span>
+
+<span class="p">(</span><span class="nb">defun</span> <span class="nv">sup_sum2</span> <span class="p">(</span><span class="nv">L</span><span class="p">)</span>
+    <span class="p">(</span><span class="k">if</span> <span class="nv">L</span>
+        <span class="p">(</span><span class="nb">+</span> <span class="p">(</span><span class="nb">apply</span> <span class="nf">#&#39;</span><span class="nb">+</span> <span class="p">(</span><span class="nb">car</span> <span class="nv">L</span><span class="p">))</span> <span class="p">(</span><span class="nv">sup_sum2</span> <span class="p">(</span><span class="nb">cdr</span> <span class="nv">L</span><span class="p">)))</span>
+        <span class="p">(</span><span class="nb">apply</span> <span class="nf">#&#39;</span><span class="nb">+</span> <span class="p">(</span><span class="nb">car</span> <span class="nv">L</span><span class="p">))))</span>
+
+<span class="p">(</span><span class="nb">defun</span> <span class="nv">sum</span> <span class="p">(</span><span class="nv">L</span> <span class="nv">res</span><span class="p">)</span>
+    <span class="p">(</span><span class="k">if</span> <span class="nv">L</span>
+        <span class="p">(</span><span class="nb">+</span> <span class="p">(</span><span class="nb">car</span> <span class="nv">L</span><span class="p">)</span> <span class="p">(</span><span class="nv">sum</span> <span class="p">(</span><span class="nb">cdr</span> <span class="nv">L</span><span class="p">)</span> <span class="nv">res</span><span class="p">))</span>
+        <span class="p">(</span><span class="k">if</span> <span class="nv">res</span>
+            <span class="p">(</span><span class="nv">sum</span> <span class="p">(</span><span class="nb">car</span> <span class="nv">res</span><span class="p">)</span> <span class="p">(</span><span class="nb">cdr</span> <span class="nv">res</span><span class="p">))</span>
+            <span class="mi">0</span><span class="p">)))</span>
+
+<span class="p">(</span><span class="k">let</span> <span class="p">((</span><span class="nv">arrays</span> <span class="p">(</span><span class="nv">random_lists</span> <span class="no">nil</span> <span class="mi">10</span><span class="p">)))</span>
+    <span class="p">(</span><span class="nb">time</span> <span class="p">(</span><span class="nv">sup_sum</span> <span class="nv">arrays</span><span class="p">)))</span>
+
+<span class="p">(</span><span class="k">let</span> <span class="p">((</span><span class="nv">arrays</span> <span class="p">(</span><span class="nv">random_lists</span> <span class="no">nil</span> <span class="mi">10</span><span class="p">)))</span>
+    <span class="p">(</span><span class="nb">time</span> <span class="p">(</span><span class="nv">sup_sum2</span> <span class="nv">arrays</span><span class="p">)))</span>
+
+<span class="p">(</span><span class="k">let</span> <span class="p">((</span><span class="nv">arrays</span> <span class="p">(</span><span class="nv">random_lists</span> <span class="no">nil</span> <span class="mi">10</span><span class="p">)))</span>
+    <span class="p">(</span><span class="nb">time</span> <span class="p">(</span><span class="nv">sum</span> <span class="no">nil</span> <span class="nv">arrays</span><span class="p">)))</span>
+</pre></div>
+<p>Y a continuación la versión en C</p>
+<div class="highlight"><pre> <span class="cm">/* kata.c</span>
+<span class="cm">  *</span>
+<span class="cm">  * Author: David Barragan Merino (@bameda)</span>
+<span class="cm">  * Date: 2011-10-29</span>
+<span class="cm">  *</span>
+<span class="cm">  * Compile:</span>
+<span class="cm">  * gcc kata.c -o kata</span>
+<span class="cm">  * Execute:</span>
+<span class="cm">  * ./kata</span>
+<span class="cm">  */</span>
+ <span class="err">#</span><span class="n">include</span> <span class="o">&lt;</span><span class="n">stdio</span><span class="p">.</span><span class="n">h</span><span class="o">&gt;</span>
+ <span class="err">#</span><span class="n">include</span> <span class="o">&lt;</span><span class="n">stdlib</span><span class="p">.</span><span class="n">h</span><span class="o">&gt;</span>
+
+ <span class="err">#</span><span class="n">define</span> <span class="n">NUM_ARRAYS</span> <span class="mi">10</span>
+ <span class="err">#</span><span class="n">define</span> <span class="n">ARRAY_SIZE</span> <span class="mi">500</span>
+ <span class="err">#</span><span class="n">define</span> <span class="n">MAX</span> <span class="mi">1000000</span>
+
+ <span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span> <span class="p">{</span>
+    <span class="k">struct</span> <span class="n">timeval</span> <span class="n">tv</span><span class="p">;</span>
+    <span class="kt">long</span> <span class="kt">double</span> <span class="n">t_init</span><span class="p">,</span> <span class="n">t_end</span><span class="p">;</span>
+
+    <span class="kt">int</span> <span class="n">arrays</span><span class="p">[</span><span class="n">NUM_ARRAYS</span><span class="p">][</span><span class="n">ARRAY_SIZE</span><span class="p">];</span>
+    <span class="kt">int</span> <span class="n">sum</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">;</span>
+
+    <span class="c1">// Generate Arrays</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">NUM_ARRAYS</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">ARRAY_SIZE</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span>
+            <span class="n">arrays</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">rand</span><span class="p">()</span> <span class="o">%</span> <span class="n">MAX</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+
+    <span class="n">gettimeofday</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tv</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+    <span class="n">t_init</span> <span class="o">=</span> <span class="n">tv</span><span class="p">.</span><span class="n">tv_sec</span> <span class="o">+</span> <span class="p">(</span><span class="n">tv</span><span class="p">.</span><span class="n">tv_usec</span> <span class="o">/</span> <span class="mf">1000000.0</span><span class="p">);</span>
+
+    <span class="c1">// Calculate</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">NUM_ARRAYS</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">ARRAY_SIZE</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span>
+            <span class="n">sum</span> <span class="o">+=</span> <span class="n">arrays</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">];</span>
+
+    <span class="n">gettimeofday</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tv</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+    <span class="n">t_end</span> <span class="o">=</span> <span class="n">tv</span><span class="p">.</span><span class="n">tv_sec</span> <span class="o">+</span> <span class="p">(</span><span class="n">tv</span><span class="p">.</span><span class="n">tv_usec</span> <span class="o">/</span> <span class="mf">1000000.0</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Total time: %Lgn&quot;</span><span class="p">,</span> <span class="n">t_end</span> <span class="o">-</span> <span class="n">t_init</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+<p>Por último muestro los resultados obtenidos para tres ejecuciones, en
+primer lugar lanzando lisp desde el interprete</p>
+<dl class="docutils">
+<dt>::</dt>
+<dd>Real time: 1.03E-4 sec.
+Run time: 0.0 sec.
+Space: 608 Bytes
+Real time: 9.9E-5 sec.
+Run time: 0.0 sec.
+Space: 0 Bytes
+Real time: 0.009647 sec.
+Run time: 0.012 sec.
+Space: 0 Bytes</dd>
+</dl>
+<p>en segundo lugar compilando lisp</p>
+<dl class="docutils">
+<dt>::</dt>
+<dd><a class="reference external" href="mailto:bameda&#64;stewie">bameda&#64;stewie</a>:~$ clisp -c -l -q kata.lisp -o kata
+;; Compiling file /home/bameda/kata.lisp ...
+;; Wrote file /home/bameda/kata.fas
+;; Wrote file /home/bameda/kata.lis
+0 errores, 0 advertencias
+<a class="reference external" href="mailto:bameda&#64;stewie">bameda&#64;stewie</a>:~$ clisp kata.fas
+Real time: 9.8E-5 sec.
+Run time: 0.0 sec.
+Space: 160 Bytes
+Real time: 9.1E-5 sec.
+Run time: 0.0 sec.
+Space: 0 Bytes
+Real time: 9.69E-4 sec.
+Run time: 0.0 sec.
+Space: 0 Bytes</dd>
+</dl>
+<p>y en tercer lugar la ejecución en C</p>
+<dl class="docutils">
+<dt>::</dt>
+<dd><a class="reference external" href="mailto:bameda&#64;stewie">bameda&#64;stewie</a>:~$ gcc kata.c -o kata
+<a class="reference external" href="mailto:bameda&#64;stewie">bameda&#64;stewie</a>:~$ ./kata
+Total time: 1.50204e-05</dd>
+</dl>
+<p>Saquen sus propias conclusiones</p>
+
+            </div>
+            <!-- /.entry-content -->
+        </article>
+    </section>
+
+        </div>
+        <div class="col-lg-3 well well-sm" id="sidebar">
+
+<aside>
+    <section>
+        <ul class="list-group list-group-flush">
+                <li class="list-group-item"><h4><i class="icon-home icon-large"></i>Social</h4></li>
+                    <li class="list-group-item"><a href="https://twitter.com/bameda"><i
+                            class="icon-twitter-sign icon-small"></i>twitter
+                    </a></li>
+                    <li class="list-group-item"><a href="https://github.com/bameda"><i
+                            class="icon-github-sign icon-small"></i>github
+                    </a></li>
+                    <li class="list-group-item"><a href="https://www.linkedin.com/in/davidbarraganmerino"><i
+                            class="icon-linkedin-sign icon-small"></i>linkedin
+                    </a></li>
+
+
+                <li class="list-group-item"><h4><i class="icon-folder-open icon-large"></i>Categories</h4></li>
+                        <li class="list-group-item">
+                            <a href="./category/divagaciones.html">
+                                divagaciones
+                            </a>
+                        </li>
+                        <li class="list-group-item">
+                            <a href="./category/eventos.html">
+                                eventos
+                            </a>
+                        </li>
+                        <li class="list-group-item">
+                            <a href="./category/mundo-kaleidos.html">
+                                mundo kaleidos
+                            </a>
+                        </li>
+                        <li class="list-group-item">
+                            <a href="./category/snippets.html">
+                                snippets
+                            </a>
+                        </li>
+                        <li class="list-group-item">
+                            <a href="./category/software.html">
+                                software
+                            </a>
+                        </li>
+                        <li class="list-group-item">
+                            <a href="./category/universidad.html">
+                                universidad
+                            </a>
+                        </li>
+
+                <li class="list-group-item"><a href="./tags.html"><h4><i class="icon-tags icon-large"></i>Tags</h4></a></li>
+                        <li class="list-group-item tag-1">
+                            <a href="./tag/django.html">
+                                django
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-1">
+                            <a href="./tag/p-week.html">
+                                Π Week
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-1">
+                            <a href="./tag/pi-week.html">
+                                PI Week
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-1">
+                            <a href="./tag/python.html">
+                                python
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-1">
+                            <a href="./tag/kaleidos.html">
+                                kaleidos
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-1">
+                            <a href="./tag/innovacion.html">
+                                innovación
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-2">
+                            <a href="./tag/universidad.html">
+                                universidad
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-2">
+                            <a href="./tag/trabajo.html">
+                                trabajo
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-2">
+                            <a href="./tag/prensa.html">
+                                prensa
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-2">
+                            <a href="./tag/recomendaciones.html">
+                                recomendaciones
+                            </a>
+                        </li>
+        </ul>
+    </section>
+
+
+<section>
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item">
+            <h4>
+                <i class="icon-github icon-large"></i>GitHub
+                    <a href="https://github.com/bameda">@bameda</a>
+            </h4>
+        </li>
+        <div id="gh_repos">
+            <p class="list-group-item">Status updating...</p>
+        </div>
+    </ul>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            if (!window.jXHR) {
+                var jxhr = document.createElement('script');
+                jxhr.type = 'text/javascript';
+                jxhr.src = './theme/js/jXHR.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(jxhr, s);
+            }
+
+            github.showRepos({
+                user: 'bameda',
+                count: 5,
+                skip_forks: true,
+                target: '#gh_repos'
+            });
+        });
+    </script>
+    <script src="./theme/js/github.js" type="text/javascript"></script>
+</section>
+
+
+
+<section>
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item">
+            <h4>
+                <i class="icon-github icon-large"></i>GitHub
+                    <a href="https://github.com/kaleidos">@kaleidos</a>
+            </h4>
+        </li>
+        <div id="gh_repos_2">
+            <p class="list-group-item">Status updating...</p>
+        </div>
+    </ul>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            if (!window.jXHR) {
+                var jxhr = document.createElement('script');
+                jxhr.type = 'text/javascript';
+                jxhr.src = './theme/js/jXHR.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(jxhr, s);
+            }
+
+            github.showRepos({
+                user: 'kaleidos',
+                count: 5,
+                skip_forks: true,
+                target: '#gh_repos_2'
+            });
+        });
+    </script>
+    <script src="./theme/js/github.js" type="text/javascript"></script>
+</section>
+</aside>        </div>
+    </div>
+</div>
+<footer>
+    <div class="container">
+        <hr>
+        <p class="pull-right"><i class="icon-arrow-up"></i> <a href="#">Back to top</a></p>
+
+
+        <p>&copy; 2013 David Barragán &middot; Powered by <a href="https://github.com/DandyDev/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a></p>
+    </div>
+</footer>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="./theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="./theme/js/respond.min.js"></script>
+
+
+</body>
+</html>

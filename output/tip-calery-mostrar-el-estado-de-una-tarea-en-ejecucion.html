@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:og="http://ogp.me/ns#"
+      xmlns:fb="https://www.facebook.com/2008/fbml">
+<head>
+    <title>Tip Calery: Mostrar el estado de una tarea en ejecución</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Open Graph tags -->
+
+            <meta property="og:type" content="article"/>
+            <meta property="og:title" content="Tip Calery: Mostrar el estado de una tarea en ejecución"/>
+            <meta property="og:url" content="./tip-calery-mostrar-el-estado-de-una-tarea-en-ejecucion.html"/>
+            <meta property="og:description" content="Celery es una aplicación python que nos permite crear tareas de trabajo asíncronas gestionadas por un gestor de colas, basada en el paradigma de envío de mensajes, de manera distribuida. Se focaliza en operaciones en tiempo real pero también soporta la generación de tareas periódicas, es decir, puede lanzar tareas ..."/>
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="./theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="./theme/css/font-awesome.min.css" rel="stylesheet">
+    <link href="./theme/css/pygments.css" rel="stylesheet">
+        <link href="./theme/css/html4css1.css" rel="stylesheet">
+    <link rel="stylesheet" href="./theme/css/style.css" type="text/css"/>
+    <!-- JavaScript plugins (requires jQuery) -->
+    <script src="http://code.jquery.com/jquery.js"></script>
+
+
+</head>
+<body>
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="." class="navbar-brand">Mi Pensadero</a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="./archives.html"><i class="icon-th-list"></i>Archives</a></li>
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</nav>
+<!-- /.navbar -->
+<div class="container">
+    <div class="row">
+        <div class="col-lg-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="./tip-calery-mostrar-el-estado-de-una-tarea-en-ejecucion.html"
+                       rel="bookmark"
+                       title="Permalink to Tip Calery: Mostrar el estado de una tarea en ejecución">
+                        Tip Calery: Mostrar el estado de una tarea en ejecución
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="icon-calendar"></i>Fri 01 February 2013
+    </span>
+
+    <span class="label label-default">Category</span>
+    <a href="./category/snippets.html">snippets</a>
+
+
+<span class="label label-default">Tags</span>
+	<a href="./tag/celery.html">celery</a>
+        /
+	<a href="./tag/django.html">django</a>
+        /
+	<a href="./tag/django-celery.html">django-celery</a>
+        /
+	<a href="./tag/python.html">python</a>
+        /
+	<a href="./tag/snippets.html">snippets</a>
+        /
+	<a href="./tag/tips.html">tips</a>
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <p><a class="reference external" href="http://celeryproject.org/">Celery</a> es una aplicación python que <strong>nos permite crear tareas de
+trabajo asíncronas gestionadas por un gestor de colas, basada en el
+paradigma de envío de mensajes, de manera distribuida</strong>. Se focaliza en
+operaciones en tiempo real pero también soporta la generación de tareas
+periódicas, es decir, puede lanzar tareas que se tengan que ejecutar en
+un momento determinado (al más puro estilo cron de Linux). Las unidades
+de ejecución, llamadas tareas, se ejecutan de manera concurrente en uno
+o más nodos de trabajo. Estas tareas pueden ejecutarse de manera
+asíncrona o bien de manera síncrona (esperando hasta que la tarea está
+lista); o incluso puedes generar una cadena de tareas . El sistema de
+mensajería recomendado por Celery es RabbitMQ aunque tamiben se pueden
+usar otros (Redis, MongoDB o una base de datos SQL).</p>
+<p>En mi caso, lo suelo usar conjuntamente con la librería
+<strong>django-celery</strong>, para integrarlo en las aplicaciones django y delegar
+algunas tareas pesadas, por ejemplo: envío de emails (masivos),
+recálculos pesados, generación de reportes, ..</p>
+<p>En esta ocasión he tenido que generar una tarea que crease informes en
+csv sobre una colección de datos muy grande&nbsp;extraídos&nbsp;de la base de
+datos además de otro conjunto de datos generados. Por lo que el periodo
+de generación del informe podría llegar a ser de varias horas, por lo
+que necesitaba mostrar que porcentaje de datos se habían procesado.</p>
+<blockquote>
+reports/tasks.py</blockquote>
+<div class="highlight"><pre><span class="c"># -*- coding: utf-8 -*-</span>
+<span class="kn">from</span> <span class="nn">celery</span> <span class="kn">import</span> <span class="n">task</span>
+<span class="kn">from</span> <span class="nn">celery</span> <span class="kn">import</span> <span class="n">current_task</span>
+<span class="kn">from</span> <span class="nn">reports.models</span> <span class="kn">import</span> <span class="n">Report</span>
+
+<span class="c"># More imports</span>
+<span class="c"># (...)</span>
+
+<span class="k">def</span> <span class="nf">_update_task_state</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="n">current_task</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span> <span class="n">meta</span><span class="o">=</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="c"># Some auxiliar functions</span>
+    <span class="c"># (...)</span>
+
+<span class="nd">@task</span><span class="p">(</span><span class="n">ignore_result</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&quot;create-csv-report&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">create_csv_report</span><span class="p">(</span><span class="n">report_id</span><span class="p">):</span>
+    <span class="n">report</span> <span class="o">=</span> <span class="n">Report</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pk</span><span class="o">=</span><span class="n">report_id</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">report</span><span class="p">:</span>
+        <span class="c"># Create the csv file and write the first row</span>
+        <span class="c"># (...)</span>
+
+    <span class="n">total</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">items</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+    <span class="n">current</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">report</span><span class="o">.</span><span class="n">items</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+        <span class="c"># Print the item data to the csv file</span>
+        <span class="c"># (...)</span>
+
+    <span class="n">current</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="n">_update_task_state</span><span class="p">(</span><span class="s">&quot;PROCESSING&quot;</span><span class="p">,</span> <span class="n">current</span><span class="o">=</span><span class="n">current</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="n">total</span><span class="p">)</span>
+</pre></div>
+<p>De esta forma el estado de la tarea se va actualizando cada vez que
+procesamos un elemento. Por lo que podremos mostrar este estado, por
+ejemplo, en el panel de administración de django de la siguiente manera.</p>
+<blockquote>
+reports/admin.py</blockquote>
+<div class="highlight"><pre><span class="c"># -*- coding: utf-8 -*-</span>
+<span class="kn">from</span> <span class="nn">django.contrib</span> <span class="kn">import</span> <span class="n">admin</span>
+<span class="kn">from</span> <span class="nn">celery</span> <span class="kn">import</span> <span class="n">task</span>
+<span class="kn">from</span> <span class="nn">celery</span> <span class="kn">import</span> <span class="n">current_task</span>
+<span class="kn">from</span> <span class="nn">reports.models</span> <span class="kn">import</span> <span class="n">Report</span>
+<span class="c"># More imports</span>
+<span class="c"># (...)</span>
+
+<span class="k">class</span> <span class="nc">ReportAdmin</span><span class="p">(</span><span class="n">admin</span><span class="o">.</span><span class="n">ModelAdmin</span><span class="p">)</span>
+    <span class="c"># Some atributes</span>
+    <span class="c"># (...)</span>
+    <span class="n">list_display</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;uuid&quot;</span><span class="p">,</span> <span class="s">&quot;created_at&quot;</span><span class="p">,</span> <span class="s">&quot;user&quot;</span><span class="p">,</span> <span class="s">&quot;colored_status&quot;</span><span class="p">,</span> <span class="s">&quot;async_task_status&quot;</span><span class="p">,)</span>
+
+    <span class="k">def</span> <span class="nf">async_task_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report_obj</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">report_obj</span><span class="o">.</span><span class="n">task_uuid</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="n">current_app</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">get_status</span><span class="p">(</span><span class="n">report_obj</span><span class="o">.</span><span class="n">task_uuid</span><span class="p">)</span>
+            <span class="n">info</span> <span class="o">=</span> <span class="n">current_app</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">get_result</span><span class="p">(</span><span class="n">report_obj</span><span class="o">.</span><span class="n">task_uuid</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="s">&quot;PROCESING&quot;</span> <span class="ow">and</span> <span class="n">info</span><span class="p">:</span>
+                <span class="n">current</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;current&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+                <span class="n">total</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;total&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+                <span class="k">return</span> <span class="s">u&quot;</span><span class="si">%(percentage).1f%%</span><span class="s"> (Processing </span><span class="si">%(current)d</span><span class="s"> of </span><span class="si">%(total)d</span><span class="s">)&quot;</span> <span class="o">%</span> <span class="p">{</span>
+                    <span class="s">&quot;percentage&quot;</span><span class="p">:</span> <span class="n">current</span> <span class="o">*</span> <span class="mf">100.0</span> <span class="o">/</span> <span class="n">total</span><span class="p">,</span>
+                    <span class="s">&quot;current&quot;</span><span class="p">:</span> <span class="n">current</span><span class="p">,</span>
+                    <span class="s">&quot;total&quot;</span><span class="p">:</span> <span class="n">total</span><span class="p">,</span>
+                <span class="p">})</span>
+
+            <span class="k">return</span> <span class="s">&quot;Not started yet&quot;</span>
+
+    <span class="n">async_task_status</span><span class="o">.</span><span class="n">short_description</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s">u&quot;Asyncronous task status&quot;</span><span class="p">)</span>
+    <span class="n">async_task_status</span><span class="o">.</span><span class="n">allow_tags</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="c"># More methods</span>
+    <span class="c"># (...)</span>
+
+<span class="c"># More methods and/or class</span>
+<span class="c"># (...)</span>
+</pre></div>
+<p>Y quedaría algo así:</p>
+<p><a class="reference external" href="/media/2013/02/reports_admin_status.png"><img alt="Panel de administración de infórmenes" src="/media/2013/02/reports_admin_status.png" /></a></p>
+<p>Espero que esto os sea de utiliza. Quejas, dudas y sugerencias serán
+bien recibidas.</p>
+
+            </div>
+            <!-- /.entry-content -->
+        </article>
+    </section>
+
+        </div>
+        <div class="col-lg-3 well well-sm" id="sidebar">
+
+<aside>
+    <section>
+        <ul class="list-group list-group-flush">
+                <li class="list-group-item"><h4><i class="icon-home icon-large"></i>Social</h4></li>
+                    <li class="list-group-item"><a href="https://twitter.com/bameda"><i
+                            class="icon-twitter-sign icon-small"></i>twitter
+                    </a></li>
+                    <li class="list-group-item"><a href="https://github.com/bameda"><i
+                            class="icon-github-sign icon-small"></i>github
+                    </a></li>
+                    <li class="list-group-item"><a href="https://www.linkedin.com/in/davidbarraganmerino"><i
+                            class="icon-linkedin-sign icon-small"></i>linkedin
+                    </a></li>
+
+
+                <li class="list-group-item"><h4><i class="icon-folder-open icon-large"></i>Categories</h4></li>
+                        <li class="list-group-item">
+                            <a href="./category/divagaciones.html">
+                                divagaciones
+                            </a>
+                        </li>
+                        <li class="list-group-item">
+                            <a href="./category/eventos.html">
+                                eventos
+                            </a>
+                        </li>
+                        <li class="list-group-item">
+                            <a href="./category/mundo-kaleidos.html">
+                                mundo kaleidos
+                            </a>
+                        </li>
+                        <li class="list-group-item">
+                            <a href="./category/snippets.html">
+                                snippets
+                            </a>
+                        </li>
+                        <li class="list-group-item">
+                            <a href="./category/software.html">
+                                software
+                            </a>
+                        </li>
+                        <li class="list-group-item">
+                            <a href="./category/universidad.html">
+                                universidad
+                            </a>
+                        </li>
+
+                <li class="list-group-item"><a href="./tags.html"><h4><i class="icon-tags icon-large"></i>Tags</h4></a></li>
+                        <li class="list-group-item tag-1">
+                            <a href="./tag/django.html">
+                                django
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-1">
+                            <a href="./tag/p-week.html">
+                                Π Week
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-1">
+                            <a href="./tag/pi-week.html">
+                                PI Week
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-1">
+                            <a href="./tag/python.html">
+                                python
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-1">
+                            <a href="./tag/kaleidos.html">
+                                kaleidos
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-1">
+                            <a href="./tag/innovacion.html">
+                                innovación
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-2">
+                            <a href="./tag/universidad.html">
+                                universidad
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-2">
+                            <a href="./tag/trabajo.html">
+                                trabajo
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-2">
+                            <a href="./tag/prensa.html">
+                                prensa
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-2">
+                            <a href="./tag/recomendaciones.html">
+                                recomendaciones
+                            </a>
+                        </li>
+        </ul>
+    </section>
+
+
+<section>
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item">
+            <h4>
+                <i class="icon-github icon-large"></i>GitHub
+                    <a href="https://github.com/bameda">@bameda</a>
+            </h4>
+        </li>
+        <div id="gh_repos">
+            <p class="list-group-item">Status updating...</p>
+        </div>
+    </ul>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            if (!window.jXHR) {
+                var jxhr = document.createElement('script');
+                jxhr.type = 'text/javascript';
+                jxhr.src = './theme/js/jXHR.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(jxhr, s);
+            }
+
+            github.showRepos({
+                user: 'bameda',
+                count: 5,
+                skip_forks: true,
+                target: '#gh_repos'
+            });
+        });
+    </script>
+    <script src="./theme/js/github.js" type="text/javascript"></script>
+</section>
+
+
+
+<section>
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item">
+            <h4>
+                <i class="icon-github icon-large"></i>GitHub
+                    <a href="https://github.com/kaleidos">@kaleidos</a>
+            </h4>
+        </li>
+        <div id="gh_repos_2">
+            <p class="list-group-item">Status updating...</p>
+        </div>
+    </ul>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            if (!window.jXHR) {
+                var jxhr = document.createElement('script');
+                jxhr.type = 'text/javascript';
+                jxhr.src = './theme/js/jXHR.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(jxhr, s);
+            }
+
+            github.showRepos({
+                user: 'kaleidos',
+                count: 5,
+                skip_forks: true,
+                target: '#gh_repos_2'
+            });
+        });
+    </script>
+    <script src="./theme/js/github.js" type="text/javascript"></script>
+</section>
+</aside>        </div>
+    </div>
+</div>
+<footer>
+    <div class="container">
+        <hr>
+        <p class="pull-right"><i class="icon-arrow-up"></i> <a href="#">Back to top</a></p>
+
+
+        <p>&copy; 2013 David Barragán &middot; Powered by <a href="https://github.com/DandyDev/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a></p>
+    </div>
+</footer>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="./theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="./theme/js/respond.min.js"></script>
+
+
+</body>
+</html>
